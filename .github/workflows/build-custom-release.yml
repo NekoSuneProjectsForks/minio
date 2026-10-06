@@ -54,7 +54,7 @@ jobs:
           cd console-src/web-app
           corepack enable
           corepack prepare yarn@4.4.0 --activate
-          yarn install --immutable
+          yarn install --no-immutable
           yarn build
           test -f build/index.html
           grep -F "NekoSune MinIO Console" build/index.html
