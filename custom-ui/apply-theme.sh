@@ -19,6 +19,24 @@ INDEX_HTML="$CONSOLE_DIR/web-app/public/index.html"
 
 cat "$THEME_FILE" >> "$ROOT_STYLES"
 
+# Replace key legacy Console components with the NekoSune redesign.
+cp custom-ui/overrides/ConfigurationOptions.tsx   "$CONSOLE_DIR/web-app/src/screens/Console/Configurations/ConfigurationPanels/ConfigurationOptions.tsx"
+cp custom-ui/overrides/PageHeaderWrapper.tsx   "$CONSOLE_DIR/web-app/src/screens/Console/Common/PageHeaderWrapper/PageHeaderWrapper.tsx"
+cp custom-ui/overrides/MenuWrapper.tsx   "$CONSOLE_DIR/web-app/src/screens/Console/Menu/MenuWrapper.tsx"
+
+# Add a stable styling hook to the dashboard without changing its data logic.
+python3 - "$CONSOLE_DIR/web-app/src/screens/Console/Dashboard/BasicDashboard/BasicDashboard.tsx" <<'PY'
+from pathlib import Path
+import sys
+
+p = Path(sys.argv[1])
+s = p.read_text()
+needle = '  return (\n    <Box>\n'
+if needle in s:
+    s = s.replace(needle, '  return (\n    <Box className={"nekosune-dashboard"}>\n', 1)
+p.write_text(s)
+PY
+
 # Brand browser metadata without removing MinIO copyright/license notices.
 python3 - "$INDEX_HTML" <<'PY'
 from pathlib import Path
