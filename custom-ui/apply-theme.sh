@@ -50,4 +50,47 @@ s = s.replace('content="MinIO Console"', 'content="NekoSune MinIO Console"')
 p.write_text(s)
 PY
 
+
+# Promote the existing Dashboard to a first-class Overview page in navigation
+# and prefer it as the authenticated landing page when the user has access.
+python3 - "$CONSOLE_DIR/web-app/src/screens/Console/valid-routes.tsx" "$CONSOLE_DIR/web-app/src/screens/Console/Console.tsx" <<'PY'
+from pathlib import Path
+import sys
+
+menu_path = Path(sys.argv[1])
+console_path = Path(sys.argv[2])
+
+menu = menu_path.read_text()
+
+overview_item = '''    {
+      group: "User",
+      name: "Overview",
+      id: "overview",
+      path: IAM_PAGES.DASHBOARD,
+      icon: <MetricsMenuIcon />,
+    },
+'''
+
+anchor = '  let consoleMenus: IMenuItem[] = [\n'
+if overview_item not in menu and anchor in menu:
+    menu = menu.replace(anchor, anchor + overview_item, 1)
+
+menu_path.write_text(menu)
+
+console = console_path.read_text()
+old = '<Navigate to={allowedRoutes[0].path} />'
+new = '''<Navigate
+                        to={
+                          allowedRoutes.find(
+                            (route: any) => route.path === IAM_PAGES.DASHBOARD,
+                          )?.path || allowedRoutes[0].path
+                        }
+                      />'''
+if old in console:
+    console = console.replace(old, new, 1)
+
+console_path.write_text(console)
+PY
+
+
 echo "Applied NekoSune green/black Console theme."
