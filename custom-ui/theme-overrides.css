@@ -238,3 +238,305 @@ input[type="radio"]:checked {
     radial-gradient(circle at center, rgba(34, 197, 94, 0.12), transparent 28rem),
     var(--ns-bg) !important;
 }
+
+
+/* --------------------------------------------------------------------------
+   NekoSune heavy layout redesign
+   -------------------------------------------------------------------------- */
+
+.nekosune-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(5, 10, 7, 0.88) !important;
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(74, 222, 128, 0.16) !important;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.22);
+}
+
+.nekosune-page-header > * {
+  background: transparent !important;
+}
+
+.nekosune-sidebar {
+  height: 100%;
+  background:
+    linear-gradient(180deg, rgba(34, 197, 94, 0.06), transparent 18rem),
+    #07100a !important;
+  border-right: 1px solid var(--ns-border) !important;
+}
+
+.nekosune-sidebar nav,
+.nekosune-sidebar aside,
+.nekosune-sidebar [class*="menu"],
+.nekosune-sidebar [class*="Menu"] {
+  background-color: transparent !important;
+}
+
+.nekosune-sidebar a,
+.nekosune-sidebar button,
+.nekosune-sidebar [role="button"] {
+  margin: 3px 8px !important;
+  border-radius: 10px !important;
+  transition: background-color .16s ease, transform .16s ease, border-color .16s ease !important;
+}
+
+.nekosune-sidebar a:hover,
+.nekosune-sidebar button:hover,
+.nekosune-sidebar [role="button"]:hover {
+  background: rgba(34, 197, 94, 0.10) !important;
+  transform: translateX(2px);
+}
+
+.nekosune-sidebar [aria-current="page"],
+.nekosune-sidebar [aria-selected="true"],
+.nekosune-sidebar .active,
+.nekosune-sidebar .selected {
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.20), rgba(34, 197, 94, 0.07)) !important;
+  border: 1px solid rgba(74, 222, 128, 0.22) !important;
+  box-shadow: inset 3px 0 0 var(--ns-primary);
+}
+
+/* New configuration workspace */
+.nekosune-settings {
+  padding-top: 4px;
+}
+
+.nekosune-settings-hero {
+  padding: 22px 24px !important;
+  border: 1px solid var(--ns-border) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(34, 197, 94, 0.10), transparent 24rem),
+    linear-gradient(180deg, rgba(13, 23, 17, 0.96), rgba(8, 15, 11, 0.96)) !important;
+  box-shadow: var(--ns-shadow);
+}
+
+.nekosune-subtitle {
+  margin-top: 6px;
+  color: var(--ns-text-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.5;
+}
+
+.nekosune-settings-workspace {
+  min-height: 560px;
+}
+
+.nekosune-settings-nav {
+  position: sticky;
+  top: 86px;
+  overflow: hidden;
+  border: 1px solid var(--ns-border) !important;
+  border-radius: 15px !important;
+  background: linear-gradient(180deg, #0d1711, #09110c) !important;
+  box-shadow: var(--ns-shadow);
+}
+
+.nekosune-settings-nav-title {
+  padding: 18px 18px 2px;
+  color: var(--ns-text) !important;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.nekosune-settings-nav-caption {
+  padding: 0 18px 14px;
+  color: var(--ns-text-muted) !important;
+  font-size: 11px;
+  border-bottom: 1px solid var(--ns-border);
+}
+
+.nekosune-settings-nav-list {
+  padding: 8px;
+  max-height: calc(100vh - 220px);
+  overflow: auto;
+}
+
+.nekosune-settings-nav-item {
+  display: grid !important;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px !important;
+  margin: 4px 0;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  color: var(--ns-text-muted) !important;
+  cursor: pointer;
+  user-select: none;
+  transition: all .16s ease;
+}
+
+.nekosune-settings-nav-item:hover {
+  color: var(--ns-text) !important;
+  background: rgba(34, 197, 94, 0.08) !important;
+  border-color: rgba(74, 222, 128, 0.12) !important;
+  transform: translateX(2px);
+}
+
+.nekosune-settings-nav-item.is-active {
+  color: #baf7cc !important;
+  background:
+    linear-gradient(90deg, rgba(34, 197, 94, 0.22), rgba(34, 197, 94, 0.07)) !important;
+  border-color: rgba(74, 222, 128, 0.30) !important;
+  box-shadow: inset 3px 0 0 var(--ns-primary), 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.nekosune-settings-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nekosune-settings-nav-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+  color: currentColor !important;
+  fill: currentColor !important;
+}
+
+.nekosune-settings-nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nekosune-settings-content {
+  min-height: 560px;
+  padding: 20px !important;
+  border: 1px solid var(--ns-border) !important;
+  border-radius: 15px !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(34, 197, 94, 0.055), transparent 23rem),
+    #0a120d !important;
+  box-shadow: var(--ns-shadow);
+}
+
+/* Flatten the old form panel visuals inside our new card shell. */
+.nekosune-settings-content > div,
+.nekosune-settings-content form {
+  background: transparent !important;
+}
+
+.nekosune-settings-content form {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+.nekosune-settings-content label {
+  color: #cfe9d7 !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+}
+
+.nekosune-settings-content input,
+.nekosune-settings-content textarea,
+.nekosune-settings-content select {
+  min-height: 42px;
+  border-radius: 9px !important;
+  background: #050b07 !important;
+  border: 1px solid #1d402a !important;
+}
+
+.nekosune-settings-content textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.nekosune-settings-content button {
+  min-height: 38px;
+  padding-inline: 16px !important;
+  border-radius: 9px !important;
+}
+
+.nekosune-help-panel {
+  overflow: hidden;
+  border: 1px solid var(--ns-border) !important;
+  border-radius: 14px !important;
+  background: #09110c !important;
+}
+
+.nekosune-help-panel > * {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* General page density and modern cards */
+main [class*="PageLayout"],
+main [class*="pageLayout"] {
+  max-width: 1680px !important;
+  margin: 0 auto !important;
+}
+
+[class*="MuiDialog-paper"] {
+  border: 1px solid rgba(74, 222, 128, 0.18) !important;
+  border-radius: 16px !important;
+}
+
+[class*="MuiTableContainer"],
+table {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+thead {
+  background: rgba(34, 197, 94, 0.055) !important;
+}
+
+th {
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: .055em;
+  color: #9fc5aa !important;
+}
+
+td {
+  background: rgba(7, 16, 10, 0.72) !important;
+}
+
+tr:hover td {
+  background: rgba(34, 197, 94, 0.065) !important;
+}
+
+/* Dashboard reshaping */
+.nekosune-dashboard {
+  padding: 4px 0 20px;
+}
+
+.nekosune-dashboard [withborders],
+.nekosune-dashboard [class*="card"],
+.nekosune-dashboard [class*="Card"] {
+  border-radius: 14px !important;
+}
+
+.nekosune-dashboard > div > div {
+  gap: 18px !important;
+}
+
+.nekosune-dashboard svg {
+  color: var(--ns-primary) !important;
+}
+
+/* Object/bucket pages */
+#buckets-list,
+[class*="bucket"],
+[class*="Bucket"] {
+  border-color: var(--ns-border) !important;
+}
+
+@media (max-width: 980px) {
+  .nekosune-settings-workspace {
+    grid-template-columns: 1fr !important;
+  }
+
+  .nekosune-settings-nav {
+    position: static;
+  }
+
+  .nekosune-settings-nav-list {
+    max-height: 260px;
+  }
+}
