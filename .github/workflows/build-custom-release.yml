@@ -1,0 +1,167 @@
+name: Build custom MinIO 2025-02-28
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - custom-release-2025-02-28
+    paths-ignore:
+      - "**/*.md"
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
+env:
+  RELEASE_TAG: RELEASE.2025-02-28T09-55-16Z
+  RELEASE_DATE: 2025-02-28T09:55:16Z
+  CONSOLE_COMMIT: 484e1f43fe037b40f8d0f09c3362f370c7c4f7eb
+  IMAGE_NAME: ghcr.io/nekosuneprojectsforks/minio
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out custom MinIO branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node 18 for Console
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Fetch preserved MinIO Console source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/huncrys/minio-console.git console-src
+          git -C console-src checkout "$CONSOLE_COMMIT"
+
+      - name: Apply NekoSune green/black theme
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash custom-ui/apply-theme.sh console-src custom-ui/theme-overrides.css
+
+      - name: Build custom Console assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd console-src/web-app
+          corepack enable
+          corepack prepare yarn@4.4.0 --activate
+          yarn install --immutable
+          yarn build
+          test -f build/index.html
+          grep -F "NekoSune MinIO Console" build/index.html
+
+      - name: Set up Go 1.23.6
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.6"
+          cache: true
+
+      - name: Use locally themed Console module
+        shell: bash
+        run: |
+          set -euo pipefail
+          go mod edit -replace github.com/minio/console=./console-src
+          go mod tidy
+          grep -F "replace github.com/minio/console => ./console-src" go.mod
+
+      - name: Build amd64 and arm64 MinIO binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/amd64 dist/arm64
+
+          export MINIO_RELEASE=RELEASE
+          LDFLAGS="$(go run buildscripts/gen-ldflags.go "$RELEASE_DATE")"
+
+          for arch in amd64 arm64; do
+            echo "Building $RELEASE_TAG custom for linux/$arch"
+            CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
+              go build \
+                -tags kqueue \
+                -trimpath \
+                -ldflags "$LDFLAGS" \
+                -o "dist/$arch/minio" .
+            chmod +x "dist/$arch/minio"
+          done
+
+          ./dist/amd64/minio --version
+          ./dist/amd64/minio --version | grep -F "$RELEASE_TAG"
+          sha256sum dist/amd64/minio dist/arm64/minio
+
+      - name: Run Go vulnerability scan
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          "$(go env GOPATH)/bin/govulncheck" ./...
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push multi-arch custom image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.custom
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: true
+          sbom: true
+          build-args: |
+            RELEASE_TAG=${{ env.RELEASE_TAG }}
+            VCS_REF=${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.RELEASE_TAG }}-custom
+            ${{ env.IMAGE_NAME }}:custom-release-2025-02-28
+            ${{ env.IMAGE_NAME }}:green-black
+          labels: |
+            org.opencontainers.image.version=${{ env.RELEASE_TAG }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/NekoSuneProjectsForks/minio
+
+      - name: Scan pushed image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        continue-on-error: true
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:${{ env.RELEASE_TAG }}-custom
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "0"
+
+      - name: Summary
+        shell: bash
+        run: |
+          {
+            echo "## NekoSune MinIO custom build"
+            echo
+            echo "- Base release: `$RELEASE_TAG`"
+            echo "- Console source: `$CONSOLE_COMMIT`"
+            echo "- Theme: green/black"
+            echo "- Architectures: amd64 + arm64"
+            echo
+            echo "### Images"
+            echo "`$IMAGE_NAME:$RELEASE_TAG-custom`"
+            echo "`$IMAGE_NAME:custom-release-2025-02-28`"
+            echo "`$IMAGE_NAME:green-black`"
+          } >> "$GITHUB_STEP_SUMMARY"
