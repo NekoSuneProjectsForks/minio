@@ -1,0 +1,240 @@
+/*
+ * NekoSune MinIO Console Theme
+ * Applied to the preserved MinIO Console v1.7.6 frontend at build time.
+ *
+ * Dark charcoal + emerald/green design inspired by modern object-storage
+ * dashboards while keeping MinIO's original functionality and routes.
+ */
+
+:root {
+  color-scheme: dark;
+  --ns-bg: #050a07;
+  --ns-bg-elevated: #09110c;
+  --ns-panel: #0d1711;
+  --ns-panel-hover: #112019;
+  --ns-border: #1b3a28;
+  --ns-border-strong: #245c39;
+  --ns-primary: #22c55e;
+  --ns-primary-hover: #16a34a;
+  --ns-primary-soft: rgba(34, 197, 94, 0.14);
+  --ns-accent: #4ade80;
+  --ns-text: #edfdf2;
+  --ns-text-muted: #91a99a;
+  --ns-danger: #ef4444;
+  --ns-warning: #f59e0b;
+  --ns-shadow: 0 14px 40px rgba(0, 0, 0, 0.32);
+}
+
+html,
+body,
+#root {
+  background: var(--ns-bg) !important;
+  color: var(--ns-text) !important;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 20% -10%, rgba(34, 197, 94, 0.10), transparent 34rem),
+    linear-gradient(180deg, #07100a 0%, var(--ns-bg) 38%, #030604 100%) !important;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+/* Generic surfaces used across MDS/Console. */
+main,
+section,
+aside,
+nav,
+header,
+[class*="MuiPaper"],
+[class*="MuiDrawer"],
+[class*="MuiAppBar"],
+[class*="MuiCard"],
+[class*="MuiDialog-paper"],
+[class*="MuiPopover-paper"],
+[class*="MuiMenu-paper"] {
+  border-color: var(--ns-border) !important;
+}
+
+[class*="MuiPaper"],
+[class*="MuiDrawer"],
+[class*="MuiCard"],
+[class*="MuiDialog-paper"],
+[class*="MuiPopover-paper"],
+[class*="MuiMenu-paper"] {
+  background-color: var(--ns-panel) !important;
+  color: var(--ns-text) !important;
+  box-shadow: var(--ns-shadow) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+strong,
+th {
+  color: var(--ns-text) !important;
+}
+
+p,
+small,
+td,
+[class*="MuiTypography"] {
+  color: inherit;
+}
+
+a {
+  color: var(--ns-accent) !important;
+}
+
+a:hover {
+  color: #86efac !important;
+}
+
+/* Inputs */
+input,
+textarea,
+select,
+[class*="MuiInputBase-root"],
+[class*="MuiOutlinedInput-root"] {
+  background: #07100a !important;
+  color: var(--ns-text) !important;
+  border-color: var(--ns-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #71877a !important;
+}
+
+fieldset {
+  border-color: var(--ns-border) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+[class*="Mui-focused"] fieldset {
+  border-color: var(--ns-primary) !important;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.14) !important;
+}
+
+/* Buttons */
+button,
+[role="button"] {
+  border-radius: 8px !important;
+}
+
+button:not(:disabled):hover,
+[role="button"]:not([aria-disabled="true"]):hover {
+  filter: brightness(1.08);
+}
+
+button[class*="primary"],
+button[class*="contained"],
+[class*="MuiButton-containedPrimary"] {
+  background: linear-gradient(180deg, #29d466, #16a34a) !important;
+  color: #031006 !important;
+  border-color: #35e777 !important;
+}
+
+[class*="MuiButton-outlined"] {
+  border-color: var(--ns-border-strong) !important;
+  color: var(--ns-accent) !important;
+}
+
+/* Selected navigation / tabs / list rows */
+[aria-selected="true"],
+[class*="Mui-selected"],
+[class*="active"],
+[class*="selected"] {
+  background-color: var(--ns-primary-soft) !important;
+  color: var(--ns-accent) !important;
+}
+
+[aria-selected="true"] svg,
+[class*="Mui-selected"] svg,
+[class*="active"] svg {
+  fill: var(--ns-primary) !important;
+  color: var(--ns-primary) !important;
+}
+
+/* Separators and tables */
+hr,
+table,
+thead,
+tbody,
+tr,
+td,
+th {
+  border-color: var(--ns-border) !important;
+}
+
+tr:hover td {
+  background-color: rgba(34, 197, 94, 0.045) !important;
+}
+
+/* Progress / switches */
+[class*="MuiLinearProgress-bar"],
+[class*="MuiCircularProgress-circle"],
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  accent-color: var(--ns-primary) !important;
+  color: var(--ns-primary) !important;
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #245c39 #07100a;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #07100a;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #245c39;
+  border: 2px solid #07100a;
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--ns-primary);
+}
+
+/* Focus visibility */
+:focus-visible {
+  outline: 2px solid var(--ns-primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* Empty-state cards and modal content gain a subtle green frame. */
+[class*="empty"],
+[class*="Empty"],
+[class*="modal"],
+[class*="Modal"] {
+  border-color: var(--ns-border) !important;
+}
+
+/* Keep destructive states visually distinct from the green primary action. */
+[class*="danger"],
+[class*="error"],
+[class*="Error"] {
+  --ns-primary: var(--ns-danger);
+}
+
+/* Login/loader background */
+#loader-block {
+  background:
+    radial-gradient(circle at center, rgba(34, 197, 94, 0.12), transparent 28rem),
+    var(--ns-bg) !important;
+}
