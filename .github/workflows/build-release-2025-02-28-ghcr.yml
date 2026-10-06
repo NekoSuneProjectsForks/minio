@@ -1,0 +1,138 @@
+name: Build legacy MinIO RELEASE.2025-02-28T09-55-16Z
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release-2025-02-28-ghcr
+    paths:
+      - .github/workflows/build-release-2025-02-28-ghcr.yml
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  RELEASE_TAG: RELEASE.2025-02-28T09-55-16Z
+  RELEASE_COMMIT: 8c2c92f7afdc8386b000c0cb57ecec2ee1f5bcb0
+  RELEASE_DATE: 2025-02-28T09:55:16Z
+  IMAGE_NAME: ghcr.io/nekosuneprojectsforks/minio
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out exact MinIO release commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_COMMIT }}
+          fetch-depth: 0
+
+      - name: Verify checkout is the expected upstream release
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$RELEASE_COMMIT"
+          git tag --points-at HEAD | grep -Fx "$RELEASE_TAG"
+
+      - name: Set up Go 1.23.6
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.6'
+          cache: true
+
+      - name: Build exact MinIO binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/amd64 dist/arm64
+
+          export MINIO_RELEASE=RELEASE
+          LDFLAGS="$(go run buildscripts/gen-ldflags.go "$RELEASE_DATE")"
+
+          for arch in amd64 arm64; do
+            echo "Building $RELEASE_TAG for linux/$arch"
+            CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
+              go build \
+                -tags kqueue \
+                -trimpath \
+                -ldflags "$LDFLAGS" \
+                -o "dist/$arch/minio" .
+            chmod +x "dist/$arch/minio"
+          done
+
+          ./dist/amd64/minio --version
+          ./dist/amd64/minio --version | grep -F "$RELEASE_TAG"
+          sha256sum dist/amd64/minio dist/arm64/minio
+
+      - name: Create pinned runtime Dockerfile
+        shell: bash
+        run: |
+          cat > Dockerfile.ghcr-release <<'DOCKERFILE'
+          FROM alpine:3.21
+
+          ARG TARGETARCH
+          ARG RELEASE_TAG
+          ARG RELEASE_COMMIT
+
+          RUN apk add --no-cache ca-certificates tzdata curl
+
+          COPY dist/${TARGETARCH}/minio /usr/bin/minio
+          COPY dockerscripts/docker-entrypoint.sh /usr/bin/docker-entrypoint.sh
+
+          RUN chmod 0755 /usr/bin/minio /usr/bin/docker-entrypoint.sh
+
+          LABEL org.opencontainers.image.title="MinIO" \
+                org.opencontainers.image.description="Pinned legacy MinIO community release" \
+                org.opencontainers.image.source="https://github.com/NekoSuneProjectsForks/minio" \
+                org.opencontainers.image.revision="${RELEASE_COMMIT}" \
+                org.opencontainers.image.version="${RELEASE_TAG}" \
+                org.opencontainers.image.licenses="AGPL-3.0"
+
+          EXPOSE 9000 9001
+          VOLUME ["/data"]
+
+          ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
+          CMD ["minio"]
+          DOCKERFILE
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.ghcr-release
+          platforms: linux/amd64,linux/arm64
+          push: true
+          provenance: true
+          sbom: true
+          build-args: |
+            RELEASE_TAG=${{ env.RELEASE_TAG }}
+            RELEASE_COMMIT=${{ env.RELEASE_COMMIT }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.RELEASE_TAG }}
+            ${{ env.IMAGE_NAME }}:legacy-2025-02-28
+          labels: |
+            org.opencontainers.image.version=${{ env.RELEASE_TAG }}
+            org.opencontainers.image.revision=${{ env.RELEASE_COMMIT }}
+            org.opencontainers.image.source=https://github.com/NekoSuneProjectsForks/minio
+
+      - name: Show published image
+        shell: bash
+        run: |
+          echo "Published:"
+          echo "  $IMAGE_NAME:$RELEASE_TAG"
+          echo "  $IMAGE_NAME:legacy-2025-02-28"
