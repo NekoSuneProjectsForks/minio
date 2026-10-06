@@ -45,7 +45,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git clone https://github.com/minio/mds.git mds-src
+          git clone https://github.com/OpenMaxIO/mds.git mds-src
           git -C mds-src checkout 027fb7f9834e2bd6daba7f62a9d04d9a3606fbe1
 
       - name: Apply NekoSune green/black theme
