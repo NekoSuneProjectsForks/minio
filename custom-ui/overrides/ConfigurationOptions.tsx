@@ -97,6 +97,7 @@ const ConfigurationOptions = () => {
               <ScreenTitle
                 icon={<SettingsIcon />}
                 title={"System Configuration"}
+                actions={null}
                 sx={{ marginBottom: 4 }}
               />
               <Box className={"nekosune-subtitle"}>
